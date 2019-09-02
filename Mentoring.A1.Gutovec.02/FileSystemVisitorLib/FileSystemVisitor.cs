@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileSystemVisitorLib
 {
-    public class FileSystemVisitor
+    public class FileSystemVisitor : IEnumerable<string>
     {
         #region Private fields
         private readonly DirectoryInfo _rootPath;
@@ -42,11 +40,11 @@ namespace FileSystemVisitorLib
         #endregion
 
         #region Public methods
-        public IEnumerable<string> GetDirectoriesAndFilesFromRoot(string path)
+        public IEnumerable<string> GetDirectoriesAndFilesFromRoot()
         {
             OnStart(new EventArgs());
 
-            foreach (var element in GetDirectories(path))
+            foreach (var element in GetDirectories(_rootPath.FullName))
             {
                 yield return element;
             }
@@ -115,10 +113,10 @@ namespace FileSystemVisitorLib
                         yield return subFolder;
                     }
 
-                    foreach (var element in GetDirectories(subFolder))
-                    {
-                        yield return element;
-                    }
+                }
+                foreach (var element in GetDirectories(subFolder))
+                {
+                    yield return element;
                 }
             }
 
@@ -143,7 +141,7 @@ namespace FileSystemVisitorLib
                     }
 
                     var argsFilteredFile = new ItemFoundInfoEventArgs() { ItemName = file };
-                    OnFilteredDirectoryFound(argsFilteredFile);
+                    OnFilteredFileFound(argsFilteredFile);
 
                     if (argsFilteredFile.Stop)
                     {
@@ -156,6 +154,18 @@ namespace FileSystemVisitorLib
                     }
                 }
             }
+        }
+        #endregion
+
+        #region Implementations
+        public IEnumerator<string> GetEnumerator()
+        {
+            return GetDirectoriesAndFilesFromRoot().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
         #endregion
     }
