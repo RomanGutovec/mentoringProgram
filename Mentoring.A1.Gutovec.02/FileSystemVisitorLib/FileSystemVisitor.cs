@@ -7,12 +7,9 @@ namespace FileSystemVisitorLib
 {
     public class FileSystemVisitor : IEnumerable<string>
     {
-        #region Private fields
         private readonly DirectoryInfo _rootPath;
         private readonly Func<string, bool> _filter;
-        #endregion 
 
-        #region Constructors
         public FileSystemVisitor(DirectoryInfo rootPath)
         {
             _rootPath = rootPath ?? throw new ArgumentNullException($"Argument {nameof(rootPath)} has null value.");
@@ -23,37 +20,24 @@ namespace FileSystemVisitorLib
         {
             _filter = filter ?? throw new ArgumentNullException($"Argument {nameof(filter)} has null value.");
         }
-        #endregion
 
-        #region Events
-        public event EventHandler Start = delegate { };
+        public event EventHandler Start;
 
-        public event EventHandler Finish = delegate { };
+        public event EventHandler Finish;
 
-        public event EventHandler<ItemFoundInfoEventArgs> FileFound = delegate { };
+        public event EventHandler<ItemFoundInfoEventArgs> FileFound;
 
-        public event EventHandler<ItemFoundInfoEventArgs> DirectoryFound = delegate { };
+        public event EventHandler<ItemFoundInfoEventArgs> DirectoryFound;
 
-        public event EventHandler<ItemFoundInfoEventArgs> FilteredFileFound = delegate { };
+        public event EventHandler<ItemFoundInfoEventArgs> FilteredFileFound;
 
-        public event EventHandler<ItemFoundInfoEventArgs> FilteredDirectoryFound = delegate { };
-        #endregion
+        public event EventHandler<ItemFoundInfoEventArgs> FilteredDirectoryFound;
 
-        #region Public methods
-        public IEnumerable<string> GetDirectoriesAndFilesFromRoot()
+        public IEnumerator<string> GetEnumerator()
         {
-            OnStart(new EventArgs());
-
-            foreach (var element in GetDirectories(_rootPath.FullName))
-            {
-                yield return element;
-            }
-
-            OnFinish(new EventArgs());
+            return GetDirectoriesAndFilesFromRoot().GetEnumerator();
         }
-        #endregion
 
-        #region Protected methods
         protected virtual void OnStart(EventArgs e)
         {
             Start?.Invoke(this, e);
@@ -83,9 +67,19 @@ namespace FileSystemVisitorLib
         {
             FilteredDirectoryFound?.Invoke(this, e);
         }
-        #endregion
 
-        #region Private methods
+        private IEnumerable<string> GetDirectoriesAndFilesFromRoot()
+        {
+            OnStart(new EventArgs());
+
+            foreach (var element in GetDirectories(_rootPath.FullName))
+            {
+                yield return element;
+            }
+
+            OnFinish(new EventArgs());
+        }
+
         private IEnumerable<string> GetDirectories(string path)
         {
             foreach (var subFolder in Directory.EnumerateDirectories(path))
@@ -155,18 +149,10 @@ namespace FileSystemVisitorLib
                 }
             }
         }
-        #endregion
-
-        #region Implementations
-        public IEnumerator<string> GetEnumerator()
-        {
-            return GetDirectoriesAndFilesFromRoot().GetEnumerator();
-        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-        #endregion
     }
 }

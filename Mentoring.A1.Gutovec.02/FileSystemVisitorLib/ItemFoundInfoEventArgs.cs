@@ -10,7 +10,7 @@ namespace FileSystemVisitorLib
 
         public ItemFoundInfoEventArgs(string itemName, bool stop, bool exclude)
         {
-            ItemName = itemName ?? throw new ArgumentNullException($"Name {nameof(itemName)} can't be null.");
+            ItemName = itemName;
             Stop = stop;
             Exclude = exclude;
         }
