@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FileSystemVisitorLib
 {
@@ -9,6 +10,7 @@ namespace FileSystemVisitorLib
     {
         private readonly DirectoryInfo _rootPath;
         private readonly Func<string, bool> _filter;
+        private readonly List<ItemFoundInfoEventArgs> _args = new List<ItemFoundInfoEventArgs>();
 
         public FileSystemVisitor(DirectoryInfo rootPath)
         {
@@ -70,34 +72,36 @@ namespace FileSystemVisitorLib
 
         private IEnumerable<string> GetDirectoriesAndFilesFromRoot()
         {
-            OnStart(new EventArgs());
+            OnStart(EventArgs.Empty);
 
             foreach (var element in GetDirectories(_rootPath.FullName))
             {
                 yield return element;
             }
 
-            OnFinish(new EventArgs());
+            OnFinish(EventArgs.Empty);
         }
 
         private IEnumerable<string> GetDirectories(string path)
         {
             foreach (var subFolder in Directory.EnumerateDirectories(path))
             {
-                var args = new ItemFoundInfoEventArgs() { ItemName = path };
+                var args = new ItemFoundInfoEventArgs { ItemName = path };
+                _args.Add(args);
                 OnDirectoryFound(args);
 
                 if (_filter(subFolder) && !args.Exclude)
                 {
-                    if (args.Stop)
+                    if (_args.Any(a=>a.Stop))
                     {
                         yield break;
                     }
 
-                    var argsFilteredDirectory = new ItemFoundInfoEventArgs() { ItemName = path };
+                    var argsFilteredDirectory = new ItemFoundInfoEventArgs { ItemName = path };
+                    _args.Add(argsFilteredDirectory);
                     OnFilteredDirectoryFound(argsFilteredDirectory);
 
-                    if (argsFilteredDirectory.Stop)
+                    if (_args.Any(a => a.Stop))
                     {
                         yield break;
                     }
@@ -124,20 +128,22 @@ namespace FileSystemVisitorLib
         {
             foreach (var file in Directory.EnumerateFiles(path))
             {
-                var args = new ItemFoundInfoEventArgs() { ItemName = file };
+                var args = new ItemFoundInfoEventArgs { ItemName = file };
+                _args.Add(args);
                 OnFileFound(args);
 
                 if (_filter(file) && !args.Exclude)
                 {
-                    if (args.Stop)
+                    if (_args.Any(a => a.Stop))
                     {
                         yield break;
                     }
 
-                    var argsFilteredFile = new ItemFoundInfoEventArgs() { ItemName = file };
+                    var argsFilteredFile = new ItemFoundInfoEventArgs { ItemName = file };
+                    _args.Add(argsFilteredFile);
                     OnFilteredFileFound(argsFilteredFile);
 
-                    if (argsFilteredFile.Stop)
+                    if (_args.Any(a => a.Stop))
                     {
                         yield break;
                     }
