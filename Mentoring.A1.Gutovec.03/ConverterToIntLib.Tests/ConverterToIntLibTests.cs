@@ -8,15 +8,19 @@ namespace ConverterToIntLib.Tests
     {
         [Test]
         public void ConvertToIntTest_InputNullInsteadOfString_ArgumentNullException()
-        => Assert.Throws<ArgumentNullException>(() => new ConverterToIntLib.ConverterToInt().ConvertToInt(null));
+        => Assert.Throws<ArgumentNullException>(() =>
+        {
+            string sourceString = null;
+            sourceString.ToInt();
+        });
 
         [Test]
         public void ConvertToIntTest_InputEmptyString_ArgumentNullException()
-            => Assert.Throws<ArgumentNullException>(() => new ConverterToIntLib.ConverterToInt().ConvertToInt(string.Empty));
+            => Assert.Throws<ArgumentNullException>(() => string.Empty.ToInt());
 
         [Test]
         public void ConvertToIntTest_InputWhiteSpaceString_ArgumentNullException()
-            => Assert.Throws<ArgumentNullException>(() => new ConverterToIntLib.ConverterToInt().ConvertToInt(" "));
+            => Assert.Throws<ArgumentNullException>(() => " ".ToInt());
 
         [TestCase("#123456789")]
         [TestCase("-123456789-")]
@@ -27,14 +31,14 @@ namespace ConverterToIntLib.Tests
         [TestCase("somestring")]
         [TestCase("-somestring")]
         public void ConvertToIntTest_InputStringWithIncorrectData_FormatException(string sourceString)
-            => Assert.Throws<FormatException>(() => new ConverterToInt().ConvertToInt(sourceString));
+            => Assert.Throws<FormatException>(() => sourceString.ToInt());
 
         [TestCase(int.MaxValue, 15)]
         [TestCase(int.MaxValue, 1)]
         [TestCase(int.MinValue, -1)]
         [TestCase(int.MinValue, -100)]
         public void ConvertToIntTest_InputStringWithValueMoreThanMaxValue_OverflowException(int value, int valueToOverload)
-            => Assert.Throws<OverflowException>(() => new ConverterToInt().ConvertToInt((value.ToString() + valueToOverload.ToString())));
+            => Assert.Throws<OverflowException>(() => (value + valueToOverload.ToString()).ToInt());
 
 
         [TestCase("123487645", 123487645)]
@@ -43,6 +47,6 @@ namespace ConverterToIntLib.Tests
         [TestCase("-85543328", -85543328)]
         [TestCase("-855", -855)]
         public void ConvertToIntTest_InputStringWithValueMoreThanMaxValue_OverflowException(string sourceString, int expectedResult)
-            => Assert.AreEqual(expectedResult,new ConverterToInt().ConvertToInt(sourceString));
+            => Assert.AreEqual(expectedResult, sourceString.ToInt());
     }
 }
