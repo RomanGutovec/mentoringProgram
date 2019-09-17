@@ -6,11 +6,10 @@ namespace FirstCharGetter
     {
         static void Main(string[] args)
         {
-            bool flagContinue = true;
-            while (flagContinue)
+            while (true)
             {
                 Console.WriteLine("Input string: ");
-                string inputString = Console.ReadLine();
+                var inputString = Console.ReadLine();
 
                 try
                 {
@@ -28,7 +27,6 @@ namespace FirstCharGetter
 
                 if (!IsContinueChosen())
                 {
-                    flagContinue = false;
                     break;
                 }
             }
@@ -42,11 +40,7 @@ namespace FirstCharGetter
             Console.WriteLine("Would you like to continue?(y/n):");
             var key = Console.ReadKey();
             Console.WriteLine();
-            if (key.Key.ToString().Equals("n", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            return true;
+            return !key.Key.ToString().Equals("n", StringComparison.OrdinalIgnoreCase);
         }
 
     }
